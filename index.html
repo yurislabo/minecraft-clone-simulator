@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイクラ /clone コマンド学習ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans JP', sans-serif; background-color: #e2e8f0; }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            grid-template-rows: repeat(11, 1fr);
+            gap: 1px;
+            background-color: #94a3b8;
+            border: 4px solid #475569;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+        }
+
+        .cell {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            position: relative;
+            color: #cbd5e1;
+        }
+
+        .cell.on-axis { color: #94a3b8; font-weight: bold; }
+
+        .cell-origin { 
+            background-color: #b080ff !important; 
+            color: white !important; 
+            font-weight: bold; 
+            z-index: 10;
+        }
+        
+        .block-item {
+            width: 85%;
+            height: 85%;
+            border: 2px solid rgba(0,0,0,0.1);
+            z-index: 2;
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .block-gold { background-color: #facc15; border-color: #eab308; }
+        .block-diamond { background-color: #22d3ee; border-color: #0891b2; }
+        .block-emerald { background-color: #4ade80; border-color: #16a34a; }
+
+        .cell-start { border: 2px solid #ef4444; z-index: 5; }
+        .cell-end { border: 2px solid #f59e0b; z-index: 5; }
+        .cell-dest { border: 2px solid #10b981; z-index: 5; }
+        .cell-range { background-color: rgba(239, 68, 68, 0.1); }
+        
+        /* 目的地マーク（角に合わせることを強調） */
+        .cell-dest::after {
+            content: '🎯';
+            position: absolute;
+            font-size: 14px;
+            z-index: 6;
+        }
+
+        .cloning { animation: flash 0.3s infinite alternate; }
+        @keyframes flash {
+            from { opacity: 1; }
+            to { opacity: 0.5; }
+        }
+
+        .toggle-active { background-color: #1e293b; color: white; border-color: #1e293b; }
+
+        .axis-label {
+            position: absolute;
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+        <div id="header-bar" class="bg-blue-600 p-5 text-white text-center transition-colors">
+            <h1 class="text-2xl font-bold">💎 マイクラ /clone シミュレーター</h1>
+            <p id="header-desc" class="text-xs opacity-90 font-medium">まずは好きな場所にブロックを置いてみよう！</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-0">
+            <!-- 左パネル -->
+            <div class="p-6 bg-slate-50 border-r border-slate-200 flex flex-col overflow-y-auto max-h-[800px]">
+                <!-- セットアップ -->
+                <div id="setup-panel">
+                    <h2 class="text-lg font-bold mb-4 text-blue-800 border-b-2 border-blue-500 pb-1">じゅんび：ブロックを置く</h2>
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button onclick="setPalette('gold')" id="pal-gold" class="flex flex-col items-center p-2 rounded-xl border-2 border-blue-500 bg-white shadow-sm transition-all">
+                            <div class="w-10 h-10 block-gold mb-1 rounded-sm"></div>
+                            <span class="text-[10px] font-bold">金ブロック</span>
+                        </button>
+                        <button onclick="setPalette('diamond')" id="pal-diamond" class="flex flex-col items-center p-2 rounded-xl border-2 border-transparent bg-white shadow-sm transition-all">
+                            <div class="w-10 h-10 block-diamond mb-1 rounded-sm"></div>
+                            <span class="text-[10px] font-bold">ダイヤ</span>
+                        </button>
+                        <button onclick="setPalette('emerald')" id="pal-emerald" class="flex flex-col items-center p-2 rounded-xl border-2 border-transparent bg-white shadow-sm transition-all">
+                            <div class="w-10 h-10 block-emerald mb-1 rounded-sm"></div>
+                            <span class="text-[10px] font-bold">エメ</span>
+                        </button>
+                    </div>
+                    <button onclick="finishSetup()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg transition-all active:scale-95 mb-4">
+                        じゅんび完了！つぎへ
+                    </button>
+                </div>
+
+                <!-- 練習パネル -->
+                <div id="clone-panel" class="hidden">
+                    <h2 class="text-lg font-bold mb-4 text-green-800 border-b-2 border-green-500 pb-1">練習：オプション選び</h2>
+                    
+                    <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-tighter">マスク設定 (Mask Mode)</p>
+                        <div class="flex p-1 bg-slate-100 rounded-lg border border-slate-200">
+                            <button id="opt-masked" onclick="setMaskMode('masked')" class="flex-1 py-1.5 text-xs font-bold rounded-md transition-all toggle-active">masked</button>
+                            <button id="opt-replace" onclick="setMaskMode('replace')" class="flex-1 py-1.5 text-xs font-bold rounded-md transition-all">replace</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div id="step-1" class="p-3 bg-red-50 rounded-xl border-l-4 border-red-500">
+                            <span class="font-bold text-red-600 text-xs">① 始点 / ② 終点</span>
+                            <p class="text-[10px] text-slate-600">順番はどっちが先でもOK！神様が自動で「箱」にしてくれるよ。</p>
+                        </div>
+                        <div id="step-3" class="p-3 bg-slate-100 rounded-xl border-l-4 border-slate-300">
+                            <span class="font-bold text-slate-400 text-xs">③ 目的地</span>
+                            <p class="text-[10px] text-slate-600">「箱」のなかで座標が一番小さい角（北西の角）がここに来るよ！</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="backToSetup()" class="w-full py-2 text-slate-400 text-[10px] hover:text-slate-600 hover:underline transition-colors">ブロックを置きなおす</button>
+                </div>
+
+                <!-- チルダの説明 -->
+                <div class="mt-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-yellow-800 mb-2">「~」ってなに？</h3>
+                    <p class="text-[11px] text-yellow-700 leading-relaxed">
+                        <b>「いまの場所から数えて」</b>という意味だよ！<br>
+                        たとえば <b>~2</b> なら「いまの場所から右に2マス」っていうこと。これを「相対座標（そうたいざひょう）」って呼ぶんだ。
+                    </p>
+                </div>
+
+                <div class="mt-auto pt-6 border-t border-slate-200 flex flex-col gap-1">
+                    <div class="flex justify-between items-center text-[11px] font-bold text-blue-600">
+                        <span>X軸 (左右)</span>
+                        <span>＋右 / －左</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] font-bold text-purple-600">
+                        <span>Z軸 (前後)</span>
+                        <span>＋前 / －後ろ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- メリーグリッドエリア -->
+            <div class="col-span-2 p-10 flex flex-col items-center bg-white relative">
+                
+                <div class="mb-8 flex flex-wrap justify-center gap-3 h-10">
+                    <div id="clone-controls" class="hidden flex gap-3">
+                        <button id="btn-start" onclick="setMode('start')" class="px-5 py-2 rounded-full text-xs font-bold transition-all bg-red-500 text-white shadow-lg scale-110">① 始点</button>
+                        <button id="btn-end" onclick="setMode('end')" class="px-5 py-2 rounded-full text-xs font-bold transition-all bg-slate-200 text-slate-700">② 終点</button>
+                        <button id="btn-dest" onclick="setMode('dest')" class="px-5 py-2 rounded-full text-xs font-bold transition-all bg-slate-200 text-slate-700">③ 目的地</button>
+                    </div>
+                    <button id="btn-reset" onclick="resetAll()" class="px-5 py-2 rounded-full text-xs font-bold bg-slate-800 text-white hover:bg-black transition-all">ぜんぶ消す</button>
+                </div>
+
+                <div id="grid-wrapper" class="relative w-full max-w-[440px] p-3 rounded-2xl border-4 border-blue-500 transition-all shadow-inner">
+                    <div class="axis-label top-[-35px] left-1/2 -translate-x-1/2 text-purple-600">前 (Z方向) ＋</div>
+                    <div class="axis-label bottom-[-35px] left-1/2 -translate-x-1/2 text-slate-400">後ろ (Z方向) －</div>
+                    <div class="axis-label left-[-60px] top-1/2 -translate-y-1/2 [writing-mode:vertical-lr] text-slate-400">左 (X方向) －</div>
+                    <div class="axis-label right-[-60px] top-1/2 -translate-y-1/2 [writing-mode:vertical-lr] text-blue-600">右 (X方向) ＋</div>
+                    <div id="grid-container" class="grid-container"></div>
+                </div>
+
+                <div class="mt-12 w-full bg-slate-900 rounded-3xl p-6 text-white font-mono relative shadow-2xl border border-slate-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="bg-yellow-400 text-black text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">呪文の言葉</div>
+                        <button id="btn-execute" onclick="executeClone()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-white text-xs px-6 py-2 rounded-full font-bold animate-bounce transition-all shadow-lg shadow-emerald-500/40">魔法を実行！</button>
+                    </div>
+                    <div id="command-output" class="text-sm md:text-lg break-all text-emerald-400 font-bold min-h-[1.5em] tracking-tight">/clone ...</div>
+                </div>
+                
+                <div id="status-msg" class="mt-6 text-sm text-blue-600 font-bold bg-blue-50 px-8 py-3 rounded-full border border-blue-100 min-h-[48px] flex items-center shadow-sm">
+                    クリックしてブロックを置こう！
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Minecraft Clone Simulator
+         * Copyright (c) 2024 Your Name
+         * Licensed under the MIT License
+         * https://opensource.org/licenses/mit-license.php
+         */
+        const GRID_SIZE = 11;
+        const CENTER = 5;
+        let mainMode = 'setup';
+        let cloneStep = 'start';
+        let palette = 'gold';
+        let maskOption = 'masked'; 
+        
+        let startPos = {x: null, z: null};
+        let endPos = {x: null, z: null};
+        let destPos = {x: null, z: null};
+        let blockPositions = []; 
+
+        function initGrid() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+            for (let zIndex = 0; zIndex < GRID_SIZE; zIndex++) {
+                for (let xIndex = 0; xIndex < GRID_SIZE; xIndex++) {
+                    const x = xIndex - CENTER;
+                    const z = (zIndex - CENTER) * -1;
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (x === 0 || z === 0) cell.classList.add('on-axis');
+                    cell.dataset.x = x; cell.dataset.z = z;
+                    cell.id = `cell-${x}-${z}`;
+                    if (x === 0 && z === 0) {
+                        cell.classList.add('cell-origin');
+                        cell.innerHTML = '<span class="text-[7px] pointer-events-none">自分</span>';
+                    } else {
+                        cell.innerText = `${x},${z}`;
+                    }
+                    cell.onclick = () => handleCellClick(x, z);
+                    container.appendChild(cell);
+                }
+            }
+            updateVisuals();
+        }
+
+        function setPalette(type) {
+            palette = type;
+            ['gold', 'diamond', 'emerald'].forEach(t => {
+                const el = document.getElementById(`pal-${t}`);
+                if (el) el.classList.replace('border-blue-500', 'border-transparent');
+            });
+            const activePal = document.getElementById(`pal-${type}`);
+            if (activePal) activePal.classList.replace('border-transparent', 'border-blue-500');
+        }
+
+        function setMaskMode(m) {
+            maskOption = m;
+            document.getElementById('opt-masked').classList.toggle('toggle-active', m === 'masked');
+            document.getElementById('opt-replace').classList.toggle('toggle-active', m === 'replace');
+            updateVisuals();
+        }
+
+        function handleCellClick(x, z) {
+            if (mainMode === 'setup') {
+                const idx = blockPositions.findIndex(p => p.x === x && p.z === z);
+                if (idx > -1) {
+                    if (blockPositions[idx].type === palette) blockPositions.splice(idx, 1);
+                    else blockPositions[idx].type = palette;
+                } else {
+                    blockPositions.push({x, z, type: palette});
+                }
+            } else {
+                if (cloneStep === 'start') { startPos = {x, z}; setMode('end'); }
+                else if (cloneStep === 'end') { endPos = {x, z}; setMode('dest'); }
+                else if (cloneStep === 'dest') { destPos = {x, z}; document.getElementById('btn-execute').classList.remove('hidden'); }
+            }
+            updateVisuals();
+        }
+
+        function setMode(newStep) {
+            cloneStep = newStep;
+            document.querySelectorAll('#clone-controls button').forEach(btn => {
+                btn.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-emerald-500', 'text-white', 'scale-110');
+                btn.classList.add('bg-slate-200', 'text-slate-700');
+            });
+            const activeBtn = document.getElementById(`btn-${newStep}`);
+            if (activeBtn) activeBtn.classList.remove('bg-slate-200', 'text-slate-700');
+            
+            const steps = ['step-1', 'step-3'];
+            steps.forEach(id => {
+                const el = document.getElementById(id);
+                el.className = "p-3 bg-slate-100 rounded-xl border-l-4 border-slate-300 transition-colors";
+                el.querySelector('span').className = "font-bold text-slate-400 text-xs";
+            });
+
+            const status = document.getElementById('status-msg');
+            if (newStep === 'start') {
+                activeBtn.classList.add('bg-red-500', 'text-white', 'scale-110');
+                status.innerText = "① コピーしたい範囲の「はじっこ」を選んでね。";
+                document.getElementById('step-1').className = "p-3 bg-red-50 rounded-xl border-l-4 border-red-500";
+                document.getElementById('step-1').querySelector('span').className = "font-bold text-red-600 text-xs";
+            } else if (newStep === 'end') {
+                activeBtn.classList.add('bg-yellow-500', 'text-white', 'scale-110');
+                status.innerText = "② 「反対側のはじっこ」を選んで範囲をかこもう。";
+                document.getElementById('step-1').className = "p-3 bg-yellow-50 rounded-xl border-l-4 border-yellow-500";
+                document.getElementById('step-1').querySelector('span').className = "font-bold text-yellow-600 text-xs";
+            } else {
+                activeBtn.classList.add('bg-emerald-500', 'text-white', 'scale-110');
+                status.innerText = "③ お引越し先を選ぼう。範囲の「一番小さい座標（北西）」がここに来るよ！";
+                document.getElementById('step-3').className = "p-3 bg-emerald-50 rounded-xl border-l-4 border-emerald-500";
+                document.getElementById('step-3').querySelector('span').className = "font-bold text-emerald-600 text-xs";
+            }
+        }
+
+        function finishSetup() {
+            mainMode = 'clone';
+            document.getElementById('setup-panel').classList.add('hidden');
+            document.getElementById('clone-panel').classList.remove('hidden');
+            document.getElementById('clone-controls').classList.remove('hidden');
+            document.getElementById('grid-wrapper').classList.replace('border-blue-500', 'border-green-500');
+            document.getElementById('header-bar').classList.replace('bg-blue-600', 'bg-green-600');
+            document.getElementById('header-desc').innerText = "範囲を囲って移動させよう！";
+            setMode('start');
+        }
+
+        function backToSetup() {
+            mainMode = 'setup';
+            document.getElementById('setup-panel').classList.remove('hidden');
+            document.getElementById('clone-panel').classList.add('hidden');
+            document.getElementById('clone-controls').classList.add('hidden');
+            document.getElementById('btn-execute').classList.add('hidden');
+            document.getElementById('grid-wrapper').classList.replace('border-green-500', 'border-blue-500');
+            document.getElementById('header-bar').classList.replace('bg-green-600', 'bg-blue-600');
+            startPos = {x:null, z:null}; endPos = {x:null, z:null}; destPos = {x:null, z:null};
+            updateVisuals();
+        }
+
+        function resetAll() {
+            blockPositions = [];
+            startPos = {x:null, z:null};
+            endPos = {x:null, z:null};
+            destPos = {x:null, z:null};
+            if (mainMode === 'clone') {
+                backToSetup();
+            } else {
+                updateVisuals();
+            }
+        }
+
+        function updateVisuals() {
+            document.querySelectorAll('.block-item').forEach(b => b.remove());
+            document.querySelectorAll('.cell').forEach(cell => {
+                const x = parseInt(cell.dataset.x);
+                const z = parseInt(cell.dataset.z);
+                cell.classList.remove('cell-start', 'cell-end', 'cell-dest', 'cell-range');
+
+                if (startPos.x !== null && endPos.x !== null) {
+                    const minX = Math.min(startPos.x, endPos.x);
+                    const maxX = Math.max(startPos.x, endPos.x);
+                    const minZ = Math.min(startPos.z, endPos.z);
+                    const maxZ = Math.max(startPos.z, endPos.z);
+                    if (x >= minX && x <= maxX && z >= minZ && z <= maxZ) cell.classList.add('cell-range');
+                }
+
+                if (x === startPos.x && z === startPos.z) cell.classList.add('cell-start');
+                if (x === endPos.x && z === endPos.z) cell.classList.add('cell-end');
+                if (x === destPos.x && z === destPos.z) cell.classList.add('cell-dest');
+
+                const block = blockPositions.find(p => p.x === x && p.z === z);
+                if (block) {
+                    const bEl = document.createElement('div');
+                    bEl.className = `block-item block-${block.type}`;
+                    cell.appendChild(bEl);
+                }
+            });
+
+            if (startPos.x !== null && endPos.x !== null && destPos.x !== null) {
+                document.getElementById('command-output').innerText = `/clone ~${startPos.x} ~0 ~${startPos.z} ~${endPos.x} ~0 ~${endPos.z} ~${destPos.x} ~0 ~${destPos.z} ${maskOption} move`;
+            } else {
+                document.getElementById('command-output').innerText = "/clone ...";
+            }
+        }
+
+        async function executeClone() {
+            const minX = Math.min(startPos.x, endPos.x);
+            const maxX = Math.max(startPos.x, endPos.x);
+            const minZ = Math.min(startPos.z, endPos.z);
+            const maxZ = Math.max(startPos.z, endPos.z);
+            const offsetX = destPos.x - minX;
+            const offsetZ = destPos.z - minZ;
+
+            document.querySelectorAll('.cell-range').forEach(c => c.classList.add('cloning'));
+            await new Promise(r => setTimeout(r, 600));
+
+            const sourceBlocks = blockPositions.filter(p => p.x >= minX && p.x <= maxX && p.z >= minZ && p.z <= maxZ);
+            const movedBlocks = sourceBlocks.map(p => ({ x: p.x + offsetX, z: p.z + offsetZ, type: p.type }));
+            
+            let nextBlocks = blockPositions.filter(p => !(p.x >= minX && p.x <= maxX && p.z >= minZ && p.z <= maxZ));
+
+            if (maskOption === 'replace') {
+                const dminX = minX + offsetX; const dmaxX = maxX + offsetX;
+                const dminZ = minZ + offsetZ; const dmaxZ = maxZ + offsetZ;
+                nextBlocks = nextBlocks.filter(p => !(p.x >= dminX && p.x <= dmaxX && p.z >= dminZ && p.z <= dmaxZ));
+            }
+
+            movedBlocks.forEach(mb => {
+                const dup = nextBlocks.findIndex(fb => fb.x === mb.x && fb.z === mb.z);
+                if (dup > -1) nextBlocks.splice(dup, 1);
+                nextBlocks.push(mb);
+            });
+
+            blockPositions = nextBlocks.filter(p => Math.abs(p.x) <= CENTER && Math.abs(p.z) <= CENTER);
+            document.querySelectorAll('.cloning').forEach(c => c.classList.remove('cloning'));
+            updateVisuals();
+            document.getElementById('btn-execute').classList.add('hidden');
+        }
+
+        window.onload = initGrid;
+    </script>
+</body>
+</html>
