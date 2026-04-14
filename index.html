@@ -25,7 +25,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 10px; /* 文字サイズを大きく */
             cursor: pointer;
             transition: all 0.1s ease;
             position: relative;
@@ -58,11 +58,11 @@
         .cell-dest { border: 2px solid #10b981; z-index: 5; }
         .cell-range { background-color: rgba(239, 68, 68, 0.1); }
         
-        /* 目的地マーク（角に合わせることを強調） */
+        /* 目的地マーク */
         .cell-dest::after {
             content: '🎯';
             position: absolute;
-            font-size: 14px;
+            font-size: 16px; /* アイコンを少し大きく */
             z-index: 6;
         }
 
@@ -77,7 +77,7 @@
         .axis-label {
             position: absolute;
             font-weight: 800;
-            font-size: 12px;
+            font-size: 14px; /* ラベルを大きく */
             text-transform: uppercase;
             letter-spacing: 0.1em;
             white-space: nowrap;
@@ -87,112 +87,114 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
-        <div id="header-bar" class="bg-blue-600 p-5 text-white text-center transition-colors">
-            <h1 class="text-2xl font-bold">💎 マイクラ /clone シミュレーター</h1>
-            <p id="header-desc" class="text-xs opacity-90 font-medium">まずは好きな場所にブロックを置いてみよう！</p>
+        <div id="header-bar" class="bg-blue-600 p-6 text-white text-center transition-colors">
+            <h1 class="text-3xl font-bold mb-1">💎 マイクラ /clone シミュレーター</h1>
+            <p id="header-desc" class="text-sm opacity-90 font-medium">「まえ・うしろ・みぎ・ひだり」で考えよう！</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-0">
             <!-- 左パネル -->
             <div class="p-6 bg-slate-50 border-r border-slate-200 flex flex-col overflow-y-auto max-h-[800px]">
-                <!-- セットアップ -->
+                
                 <div id="setup-panel">
-                    <h2 class="text-lg font-bold mb-4 text-blue-800 border-b-2 border-blue-500 pb-1">じゅんび：ブロックを置く</h2>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button onclick="setPalette('gold')" id="pal-gold" class="flex flex-col items-center p-2 rounded-xl border-2 border-blue-500 bg-white shadow-sm transition-all">
-                            <div class="w-10 h-10 block-gold mb-1 rounded-sm"></div>
-                            <span class="text-[10px] font-bold">金ブロック</span>
+                    <h2 class="text-xl font-bold mb-4 text-blue-800 border-b-2 border-blue-500 pb-1">じゅんび：ブロックを置く</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <button onclick="setPalette('gold')" id="pal-gold" class="flex flex-col items-center p-3 rounded-xl border-2 border-blue-500 bg-white shadow-sm transition-all hover:scale-105">
+                            <div class="w-12 h-12 block-gold mb-1 rounded-sm"></div>
+                            <span class="text-xs font-bold">金ブロック</span>
                         </button>
-                        <button onclick="setPalette('diamond')" id="pal-diamond" class="flex flex-col items-center p-2 rounded-xl border-2 border-transparent bg-white shadow-sm transition-all">
-                            <div class="w-10 h-10 block-diamond mb-1 rounded-sm"></div>
-                            <span class="text-[10px] font-bold">ダイヤ</span>
+                        <button onclick="setPalette('diamond')" id="pal-diamond" class="flex flex-col items-center p-3 rounded-xl border-2 border-transparent bg-white shadow-sm transition-all hover:scale-105">
+                            <div class="w-12 h-12 block-diamond mb-1 rounded-sm"></div>
+                            <span class="text-xs font-bold">ダイヤ</span>
                         </button>
-                        <button onclick="setPalette('emerald')" id="pal-emerald" class="flex flex-col items-center p-2 rounded-xl border-2 border-transparent bg-white shadow-sm transition-all">
-                            <div class="w-10 h-10 block-emerald mb-1 rounded-sm"></div>
-                            <span class="text-[10px] font-bold">エメ</span>
+                        <button onclick="setPalette('emerald')" id="pal-emerald" class="flex flex-col items-center p-3 rounded-xl border-2 border-transparent bg-white shadow-sm transition-all hover:scale-105">
+                            <div class="w-12 h-12 block-emerald mb-1 rounded-sm"></div>
+                            <span class="text-xs font-bold">エメ</span>
                         </button>
                     </div>
-                    <button onclick="finishSetup()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg transition-all active:scale-95 mb-4">
+                    <button onclick="finishSetup()" class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-lg font-bold shadow-lg transition-all active:scale-95 mb-4">
                         じゅんび完了！つぎへ
                     </button>
                 </div>
 
-                <!-- 練習パネル -->
                 <div id="clone-panel" class="hidden">
-                    <h2 class="text-lg font-bold mb-4 text-green-800 border-b-2 border-green-500 pb-1">練習：オプション選び</h2>
+                    <h2 class="text-xl font-bold mb-4 text-green-800 border-b-2 border-green-500 pb-1">練習：クローン</h2>
                     
-                    <div class="mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-tighter">マスク設定 (Mask Mode)</p>
+                    <div class="mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-tighter">マスク設定 (Mask Mode)</p>
                         <div class="flex p-1 bg-slate-100 rounded-lg border border-slate-200">
-                            <button id="opt-masked" onclick="setMaskMode('masked')" class="flex-1 py-1.5 text-xs font-bold rounded-md transition-all toggle-active">masked</button>
-                            <button id="opt-replace" onclick="setMaskMode('replace')" class="flex-1 py-1.5 text-xs font-bold rounded-md transition-all">replace</button>
+                            <button id="opt-masked" onclick="setMaskMode('masked')" class="flex-1 py-2 text-sm font-bold rounded-md transition-all toggle-active">masked</button>
+                            <button id="opt-replace" onclick="setMaskMode('replace')" class="flex-1 py-2 text-sm font-bold rounded-md transition-all">replace</button>
                         </div>
                     </div>
 
-                    <div class="space-y-2 mb-4">
-                        <div id="step-1" class="p-3 bg-red-50 rounded-xl border-l-4 border-red-500">
-                            <span class="font-bold text-red-600 text-xs">① 始点 / ② 終点</span>
-                            <p class="text-[10px] text-slate-600">順番はどっちが先でもOK！神様が自動で「箱」にしてくれるよ。</p>
+                    <div class="space-y-3 mb-6">
+                        <div id="step-1" class="p-4 bg-red-50 rounded-xl border-l-4 border-red-500">
+                            <span class="font-bold text-red-600 text-sm">① 始点 / ② 終点</span>
+                            <p class="text-xs text-slate-600 mt-1">コピーしたい範囲を囲もう。対角線の2点を選べばOK！</p>
                         </div>
-                        <div id="step-3" class="p-3 bg-slate-100 rounded-xl border-l-4 border-slate-300">
-                            <span class="font-bold text-slate-400 text-xs">③ 目的地</span>
-                            <p class="text-[10px] text-slate-600">「箱」のなかで座標が一番小さい角（北西の角）がここに来るよ！</p>
+                        <div id="step-3" class="p-4 bg-slate-100 rounded-xl border-l-4 border-slate-300">
+                            <span class="font-bold text-slate-400 text-sm">③ 目的地</span>
+                            <p class="text-xs text-slate-600 italic font-bold mt-1">★お引越しのルール★</p>
+                            <p class="text-xs text-slate-600">囲った範囲のなかで<b>「左・下」の角</b>が、目的地（🎯）に重なるよ！</p>
                         </div>
                     </div>
                     
-                    <button onclick="backToSetup()" class="w-full py-2 text-slate-400 text-[10px] hover:text-slate-600 hover:underline transition-colors">ブロックを置きなおす</button>
+                    <button onclick="backToSetup()" class="w-full py-2 text-slate-500 text-xs hover:text-slate-700 hover:underline transition-colors">ブロックを置きなおす</button>
                 </div>
 
-                <!-- チルダの説明 -->
-                <div class="mt-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-200 shadow-sm">
-                    <h3 class="text-xs font-bold text-yellow-800 mb-2">「~」ってなに？</h3>
-                    <p class="text-[11px] text-yellow-700 leading-relaxed">
-                        <b>「いまの場所から数えて」</b>という意味だよ！<br>
-                        たとえば <b>~2</b> なら「いまの場所から右に2マス」っていうこと。これを「相対座標（そうたいざひょう）」って呼ぶんだ。
+                <div class="mt-4 p-5 bg-yellow-50 rounded-2xl border border-yellow-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-yellow-800 mb-2">座標（ざひょう）のコツ</h3>
+                    <p class="text-xs text-yellow-700 leading-relaxed">
+                        <b>~（チルダ）</b>は「自分から見て」という意味だよ。<br>
+                        ・<b>右・まえ</b>に行くと数字が増える（プラス）<br>
+                        ・<b>左・うしろ</b>に行くと数字が減る（マイナス）<br>
+                        算数のグラフと同じだから覚えやすいね！
                     </p>
                 </div>
 
-                <div class="mt-auto pt-6 border-t border-slate-200 flex flex-col gap-1">
-                    <div class="flex justify-between items-center text-[11px] font-bold text-blue-600">
+                <div class="mt-auto pt-6 border-t border-slate-200 flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-blue-600">
                         <span>X軸 (左右)</span>
-                        <span>＋右 / －左</span>
+                        <span>右：プラス / 左：マイナス</span>
                     </div>
-                    <div class="flex justify-between items-center text-[11px] font-bold text-purple-600">
+                    <div class="flex justify-between items-center text-xs font-bold text-purple-600">
                         <span>Z軸 (前後)</span>
-                        <span>＋前 / －後ろ</span>
+                        <span>前：プラス / 後：マイナス</span>
                     </div>
                 </div>
             </div>
 
             <!-- メリーグリッドエリア -->
-            <div class="col-span-2 p-10 flex flex-col items-center bg-white relative">
+            <div class="col-span-2 p-6 md:p-10 flex flex-col items-center bg-white relative">
                 
                 <div class="mb-8 flex flex-wrap justify-center gap-3 h-10">
                     <div id="clone-controls" class="hidden flex gap-3">
-                        <button id="btn-start" onclick="setMode('start')" class="px-5 py-2 rounded-full text-xs font-bold transition-all bg-red-500 text-white shadow-lg scale-110">① 始点</button>
-                        <button id="btn-end" onclick="setMode('end')" class="px-5 py-2 rounded-full text-xs font-bold transition-all bg-slate-200 text-slate-700">② 終点</button>
-                        <button id="btn-dest" onclick="setMode('dest')" class="px-5 py-2 rounded-full text-xs font-bold transition-all bg-slate-200 text-slate-700">③ 目的地</button>
+                        <button id="btn-start" onclick="setMode('start')" class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-red-500 text-white shadow-lg scale-110">① 始点</button>
+                        <button id="btn-end" onclick="setMode('end')" class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-slate-200 text-slate-700">② 終点</button>
+                        <button id="btn-dest" onclick="setMode('dest')" class="px-6 py-2 rounded-full text-sm font-bold transition-all bg-slate-200 text-slate-700">③ 目的地</button>
                     </div>
-                    <button id="btn-reset" onclick="resetAll()" class="px-5 py-2 rounded-full text-xs font-bold bg-slate-800 text-white hover:bg-black transition-all">ぜんぶ消す</button>
+                    <button id="btn-reset" onclick="resetAll()" class="px-6 py-2 rounded-full text-sm font-bold bg-slate-800 text-white hover:bg-black transition-all">リセット</button>
                 </div>
 
-                <div id="grid-wrapper" class="relative w-full max-w-[440px] p-3 rounded-2xl border-4 border-blue-500 transition-all shadow-inner">
-                    <div class="axis-label top-[-35px] left-1/2 -translate-x-1/2 text-purple-600">前 (Z方向) ＋</div>
-                    <div class="axis-label bottom-[-35px] left-1/2 -translate-x-1/2 text-slate-400">後ろ (Z方向) －</div>
-                    <div class="axis-label left-[-60px] top-1/2 -translate-y-1/2 [writing-mode:vertical-lr] text-slate-400">左 (X方向) －</div>
-                    <div class="axis-label right-[-60px] top-1/2 -translate-y-1/2 [writing-mode:vertical-lr] text-blue-600">右 (X方向) ＋</div>
+                <div id="grid-wrapper" class="relative w-full max-w-[480px] p-3 rounded-2xl border-4 border-blue-500 transition-all shadow-inner">
+                    <!-- 直感的な軸ラベル -->
+                    <div class="axis-label top-[-40px] left-1/2 -translate-x-1/2 text-purple-600">前 (Z方向 ＋) <span class="text-xs text-slate-400 font-normal ml-1">南</span></div>
+                    <div class="axis-label bottom-[-40px] left-1/2 -translate-x-1/2 text-slate-400">後ろ (Z方向 －) <span class="text-xs text-slate-400 font-normal ml-1">北</span></div>
+                    <div class="axis-label left-[-70px] top-1/2 -translate-y-1/2 [writing-mode:vertical-lr] text-slate-400">左 (X方向 －) <span class="text-xs text-slate-400 font-normal mt-1">西</span></div>
+                    <div class="axis-label right-[-70px] top-1/2 -translate-y-1/2 [writing-mode:vertical-lr] text-blue-600">右 (X方向 ＋) <span class="text-xs text-slate-400 font-normal mt-1">東</span></div>
                     <div id="grid-container" class="grid-container"></div>
                 </div>
 
-                <div class="mt-12 w-full bg-slate-900 rounded-3xl p-6 text-white font-mono relative shadow-2xl border border-slate-700">
+                <div class="mt-14 w-full bg-slate-900 rounded-3xl p-6 text-white font-mono relative shadow-2xl border border-slate-700">
                     <div class="flex justify-between items-center mb-4">
-                        <div class="bg-yellow-400 text-black text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">呪文の言葉</div>
-                        <button id="btn-execute" onclick="executeClone()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-white text-xs px-6 py-2 rounded-full font-bold animate-bounce transition-all shadow-lg shadow-emerald-500/40">魔法を実行！</button>
+                        <div class="bg-yellow-400 text-black text-xs px-4 py-1 rounded-full font-bold uppercase tracking-wider">呪文の言葉</div>
+                        <button id="btn-execute" onclick="executeClone()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-white text-sm px-6 py-2 rounded-full font-bold animate-bounce transition-all shadow-lg shadow-emerald-500/40">魔法を実行！</button>
                     </div>
-                    <div id="command-output" class="text-sm md:text-lg break-all text-emerald-400 font-bold min-h-[1.5em] tracking-tight">/clone ...</div>
+                    <div id="command-output" class="text-base md:text-xl break-all text-emerald-400 font-bold min-h-[1.5em] tracking-tight">/clone ...</div>
                 </div>
                 
-                <div id="status-msg" class="mt-6 text-sm text-blue-600 font-bold bg-blue-50 px-8 py-3 rounded-full border border-blue-100 min-h-[48px] flex items-center shadow-sm">
+                <div id="status-msg" class="mt-8 text-base md:text-lg text-blue-600 font-bold bg-blue-50 px-8 py-4 rounded-full border-2 border-blue-100 min-h-[60px] flex items-center shadow-sm text-center">
                     クリックしてブロックを置こう！
                 </div>
             </div>
@@ -202,9 +204,8 @@
     <script>
         /**
          * Minecraft Clone Simulator
-         * Copyright (c) 2024 Your Name
+         * Copyright (c) 2024 yurislabo
          * Licensed under the MIT License
-         * https://opensource.org/licenses/mit-license.php
          */
         const GRID_SIZE = 11;
         const CENTER = 5;
@@ -224,7 +225,9 @@
             for (let zIndex = 0; zIndex < GRID_SIZE; zIndex++) {
                 for (let xIndex = 0; xIndex < GRID_SIZE; xIndex++) {
                     const x = xIndex - CENTER;
-                    const z = (zIndex - CENTER) * -1;
+                    // 上をプラス（南）にするため、(CENTER - zIndex) で計算
+                    const z = CENTER - zIndex; 
+                    
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     if (x === 0 || z === 0) cell.classList.add('on-axis');
@@ -232,7 +235,7 @@
                     cell.id = `cell-${x}-${z}`;
                     if (x === 0 && z === 0) {
                         cell.classList.add('cell-origin');
-                        cell.innerHTML = '<span class="text-[7px] pointer-events-none">自分</span>';
+                        cell.innerHTML = '<span class="text-[9px] pointer-events-none">自分</span>';
                     } else {
                         cell.innerText = `${x},${z}`;
                     }
@@ -289,26 +292,26 @@
             const steps = ['step-1', 'step-3'];
             steps.forEach(id => {
                 const el = document.getElementById(id);
-                el.className = "p-3 bg-slate-100 rounded-xl border-l-4 border-slate-300 transition-colors";
-                el.querySelector('span').className = "font-bold text-slate-400 text-xs";
+                el.className = "p-4 bg-slate-100 rounded-xl border-l-4 border-slate-300 transition-colors";
+                el.querySelector('span').className = "font-bold text-slate-400 text-sm";
             });
 
             const status = document.getElementById('status-msg');
             if (newStep === 'start') {
                 activeBtn.classList.add('bg-red-500', 'text-white', 'scale-110');
                 status.innerText = "① コピーしたい範囲の「はじっこ」を選んでね。";
-                document.getElementById('step-1').className = "p-3 bg-red-50 rounded-xl border-l-4 border-red-500";
-                document.getElementById('step-1').querySelector('span').className = "font-bold text-red-600 text-xs";
+                document.getElementById('step-1').className = "p-4 bg-red-50 rounded-xl border-l-4 border-red-500";
+                document.getElementById('step-1').querySelector('span').className = "font-bold text-red-600 text-sm";
             } else if (newStep === 'end') {
                 activeBtn.classList.add('bg-yellow-500', 'text-white', 'scale-110');
                 status.innerText = "② 「反対側のはじっこ」を選んで範囲をかこもう。";
-                document.getElementById('step-1').className = "p-3 bg-yellow-50 rounded-xl border-l-4 border-yellow-500";
-                document.getElementById('step-1').querySelector('span').className = "font-bold text-yellow-600 text-xs";
+                document.getElementById('step-1').className = "p-4 bg-yellow-50 rounded-xl border-l-4 border-yellow-500";
+                document.getElementById('step-1').querySelector('span').className = "font-bold text-yellow-600 text-sm";
             } else {
                 activeBtn.classList.add('bg-emerald-500', 'text-white', 'scale-110');
-                status.innerText = "③ お引越し先を選ぼう。範囲の「一番小さい座標（北西）」がここに来るよ！";
-                document.getElementById('step-3').className = "p-3 bg-emerald-50 rounded-xl border-l-4 border-emerald-500";
-                document.getElementById('step-3').querySelector('span').className = "font-bold text-emerald-600 text-xs";
+                status.innerText = "③ お引越し先を選ぼう。範囲の「一番小さい角（左下）」がここに来るよ！";
+                document.getElementById('step-3').className = "p-4 bg-emerald-50 rounded-xl border-l-4 border-emerald-500";
+                document.getElementById('step-3').querySelector('span').className = "font-bold text-emerald-600 text-sm";
             }
         }
 
@@ -337,14 +340,9 @@
 
         function resetAll() {
             blockPositions = [];
-            startPos = {x:null, z:null};
-            endPos = {x:null, z:null};
-            destPos = {x:null, z:null};
-            if (mainMode === 'clone') {
-                backToSetup();
-            } else {
-                updateVisuals();
-            }
+            startPos = {x:null, z:null}; endPos = {x:null, z:null}; destPos = {x:null, z:null};
+            if (mainMode === 'clone') backToSetup();
+            else updateVisuals();
         }
 
         function updateVisuals() {

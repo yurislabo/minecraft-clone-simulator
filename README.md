@@ -2,6 +2,11 @@
 
 マインクラフトの /clone コマンドの仕組みを直感的に理解するための学習ツールです。
 
+## 🔗 Live Demo / 公開サイト
+
+こちらから実際にツールを試せます：
+https://yurislabo.github.io/minecraft-clone-simulator/
+
 ## ✨ このツールでできること / Features
 
 - 座標（ざひょう）の学習: 自分を中心とした ~（相対座標）の数え方を学べます。
@@ -37,3 +42,5 @@ This project is built with a single HTML file. Pull requests are more than welco
 
 このツールは MIT License のもとで公開されています。
 This tool is open-sourced under the MIT License.
+
+© 2026 ゆうりラボ (Yuri Lab)
